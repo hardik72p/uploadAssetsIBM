@@ -26,7 +26,7 @@ export default class S3Store {
   //  Create New Bucket
   async newBucket(bucketName) {
     console.log(`Creating new bucket: ${bucketName}`);
-    return cosClient.createBucket({
+    return this.cosClient.createBucket({
       Bucket: bucketName,
       CreateBucketConfiguration: {
         LocationConstraint: 'us-standard'
@@ -41,20 +41,30 @@ export default class S3Store {
   }
 
   //  Upload Text File
-  async createTextFile(bucketName, itemName, fileText) {
-    console.log(`Creating new item: ${itemName}`);
-    return cosClient.putObject({
+  async createTextFile(file, bucketName = 'images-upload') {
+    console.log(`Creating new item: ${file.originalname}`);
+    return this.cosClient.putObject({
       Bucket: bucketName,
-      Key: itemName,
-      Body: fileText
-    }).promise()
+      Key: file.originalname,
+      Body: file.buffer
+    }, (error, data) => {
+      if (error) {
+        console.log('Error uploading data: ', error);
+        return(error);
+      } else {
+        console.log('link', data.Location);
+        return(data.Location);
+      }
+    })
+      .promise()
       .then(() => {
-        console.log(`Item: ${itemName} created!`);
+        console.log(`Item: ${file.originalname} created!`);
       })
       .catch((e) => {
         console.error(`ERROR: ${e.code} - ${e.message}\n`);
       });
   }
-  
+
   // createTextFile('images-upload', 'demoTextFile', 'hello\nI created new object');
 }
+

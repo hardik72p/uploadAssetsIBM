@@ -1,8 +1,10 @@
 import S3Store from '../helper/fileUpload';
+import { successResponse, errorResponse } from '../helper';
 
 export const uploadAssets = async (req, res) => {
   try {
-    const file = req.files.file[0];
+    const file = req.file;
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>fileobj",file);
     if (!file) {
       throw new Error('file not provided');
     }
@@ -11,8 +13,8 @@ export const uploadAssets = async (req, res) => {
     if (!link) {
       throw new Error('Link not Returned');
     }
-    return successResponse(req, res, data);
+    return successResponse(req, res, link);
   } catch (error) {
-    return errorResponse(req, res, error.message);
+    return errorResponse(req, res, error.message)
   }
 }
