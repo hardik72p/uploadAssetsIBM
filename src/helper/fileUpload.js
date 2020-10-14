@@ -42,27 +42,23 @@ export default class S3Store {
 
   //  Upload Text File
   async createTextFile(file, bucketName = 'images-upload') {
-    console.log(`Creating new item: ${file.originalname}`);
-    return this.cosClient.putObject({
+    const param = {
       Bucket: bucketName,
       Key: file.originalname,
-      Body: file.buffer
-    }, (error, data) => {
+      Body: file.buffer,
+      ACL: 'public-read',
+    }
+    return new Promise((res, rej) => this.cosClient.putObject(param, (error, data,p1,p2,p3) => {
+      console.log(error,data,p1,p2,p3);
       if (error) {
         console.log('Error uploading data: ', error);
-        return(error);
+        rej(error);
       } else {
-        console.log('link', data.Location);
-        return(data.Location);
+        const link=`${this.config.endpoint}/${bucketName}/${file.originalname}`
+        console.log('link------',link);
+        res(link);
       }
-    })
-      .promise()
-      .then(() => {
-        console.log(`Item: ${file.originalname} created!`);
-      })
-      .catch((e) => {
-        console.error(`ERROR: ${e.code} - ${e.message}\n`);
-      });
+    }));
   }
 
   // createTextFile('images-upload', 'demoTextFile', 'hello\nI created new object');
